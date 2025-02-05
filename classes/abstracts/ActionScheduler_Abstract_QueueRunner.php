@@ -131,7 +131,12 @@ abstract class ActionScheduler_Abstract_QueueRunner extends ActionScheduler_Abst
 	 */
 	private function handle_action_error( $action_id, $e, $context, $valid_action ) {
 		if ( $valid_action ) {
-			$this->store->mark_failure( $action_id );
+			try {
+				$this->store->mark_failure( $action_id );
+			} catch ( Exception $e ) {
+				do_action( 'action_scheduler_failed_to_mark_failure', $action_id, $e, $context );
+			}
+
 			/**
 			 * Runs when action execution fails.
 			 *

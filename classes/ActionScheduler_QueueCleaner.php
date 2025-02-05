@@ -234,8 +234,12 @@ class ActionScheduler_QueueCleaner {
 	 */
 	public function clean( $time_limit = 300 ) {
 		$this->delete_old_actions();
-		$this->reset_timeouts( $time_limit );
-		$this->mark_failures( $time_limit );
+
+        // Stagger cleanups to being only once every 30 seconds.
+        if ( true === wp_cache_add( 'action_scheduler_queue_cleanup_lock', 1, 'vox-media', 30 ) ) {
+            $this->reset_timeouts( $time_limit );
+            $this->mark_failures( $time_limit );
+        }
 	}
 
 	/**
